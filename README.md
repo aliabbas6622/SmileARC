@@ -5,6 +5,13 @@ Built as a series of experiments on a small, heavily imbalanced clinical dataset
 from fine-tuned CNNs (macro-F1 0.04 → 0.58) to a frozen-foundation-features + MLP-probe
 approach that reached **0.71 macro-F1**.
 
+## Quick Start
+
+Open [`SmileARC_Best_Result.ipynb`](SmileARC_Best_Result.ipynb) and run all cells.
+It downloads the dataset from HuggingFace automatically, rebuilds all features,
+trains the winning model, and saves the checkpoint + inference demo.
+No configuration needed — just a GPU runtime (e.g. Google Colab).
+
 ## The Problem
 
 | class | images | share |
@@ -80,10 +87,15 @@ StandardScaler → LayerNorm → Linear(256) → GELU → Dropout(0.4) → Linea
 ## Repository Layout
 
 ```
-SmileClassification_Fixed (1).ipynb   # experiment notebook (CNN era)
+SmileARC_Best_Result.ipynb   # ⭐ single self-contained notebook: full best-result pipeline
+pipeline/                    # individual experiment cells (v5 development history)
 ```
 
-Pipeline cells + inference script live in the working notebook / project folder:
+**Start here:** [`SmileARC_Best_Result.ipynb`](SmileARC_Best_Result.ipynb) — one notebook
+that goes end-to-end: dataset download → feature extraction → fold-safe augmentation →
+training → label fixes → final model save → inference demo. ~5 min on a GPU.
+
+The `pipeline/` folder holds the individual cells from the development history:
 - `v5_lib_cell.py` — shared library: features, stratified splits, MLP probe trainer
 - `v5_phase1..5_cell.py` — A/B experiments, label review, two-stage, SigLIP, final report
 - `phase6_cell.py` / `phase6b_cell.py` — reverse-class augmentation + K sweep
@@ -97,8 +109,14 @@ Dataset: [`huggingface.co/datasets/aliabbas6622/smile`](https://huggingface.co/d
 
 ## Inference
 
+Run the last two cells of [`SmileARC_Best_Result.ipynb`](SmileARC_Best_Result.ipynb) —
+they train (or reuse) the final ensemble and include a `predict()` helper with a
+demo on one image per class.
+
+Or use the standalone script from `pipeline/`:
+
 ```bash
-python predict_smile_arc.py image1.jpg image2.jpg \
+python pipeline/predict_smile_arc.py image1.jpg image2.jpg \
     --model smile_arc_v5_final_K2aug_3seed.pt
 ```
 
